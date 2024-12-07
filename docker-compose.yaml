@@ -1,23 +1,27 @@
-version: '3.8'
-
 services:
   db:
-    image: mysql:8.0
+    image: postgres:latest
     environment:
-      MYSQL_DATABASE: transactions
-      MYSQL_USER: tramsactions
-      MYSQL_PASSWORD: transactions
-      MYSQL_ROOT_PASSWORD: transactions
-    ports:
-      - "3306:3306"
+      POSTGRES_DB: django_db
+      POSTGRES_USER: django_user
+      POSTGRES_PASSWORD: django_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   web:
-    image: python:3.8
     build: .
-    command: python /app/manage.py runserver 0.0.0.0:8000
+    command: uv run /code/transactions/manage.py runserver 0.0.0.0:8000
     volumes:
-      - .:/app
+      - .:/code
     ports:
       - "8000:8000"
     depends_on:
       - db
+    environment:
+      - DJANGO_DB_HOST=db
+      - DJANGO_DB_NAME=django_db
+      - DJANGO_DB_USER=django_user
+      - DJANGO_DB_PASSWORD=django_password
+
+volumes:
+  postgres_data:
